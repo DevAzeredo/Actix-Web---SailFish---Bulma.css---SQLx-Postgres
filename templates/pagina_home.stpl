@@ -1,0 +1,16 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Produtos</title>
+    <link rel="stylesheet" href="../src/bulma.min.css" />
+</head>
+
+<body>
+    <% include!("autocomplete_produtos.stpl"); %>
+        <br>
+        <% include!("lista_produtos.stpl"); %>
+            
+</body>
+
+</html>

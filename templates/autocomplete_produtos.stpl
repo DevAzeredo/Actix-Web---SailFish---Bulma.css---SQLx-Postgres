@@ -1,0 +1,105 @@
+<div class="columns is-centered mt-2">
+  <div class="column is-narrow">
+    <label for="products-list" class="label mt-2">Qual seria o produto?</label>
+    <label for="ip_quantidade" class="label mt-4">Quantidade?</label>
+  </div>
+  <div class="column is-2">
+    <div class="control">
+      <div class="select">
+        <select autocomplete="on" id="products-list" name="products-list">
+          <% for prod in &products { %>
+            <option label="<%= prod.valor %>" id="<%= prod.id %>">
+              <%= prod.descricao %>
+            </option>
+            <% } %>
+        </select>
+      </div>
+      <input class="input mt-2 " id="ip_quantidade" name="ip_quantidade" type="number" placeholder="Quantidade">
+      <button class="button is-primary mt-2" onclick="addRow()">Adicionar</button>
+      <script>
+        TemLinhaTotal = false;
+        function sumTotal(className, startAt) {
+
+          let elements = document.getElementsByClassName(className);
+          let sum = 0;
+
+          for (i = 0; i < elements.length; i++) {
+            sum = sum + Number(elements[i].innerHTML.substring(startAt));
+          };
+          return sum
+        }
+
+        function addRowTotal() {
+          let tablebody = document.querySelector("#tabela_lista_produtos");
+          let tr = document.createElement("tr");
+          let vazio = document.createElement("td");
+          let td_qtd_total = document.createElement("td");
+          let td_valor_total = document.createElement("td");
+
+          TemLinhaTotal = true;
+          tr.id = "total_row";
+          vazio.textContent = " ";
+          td_qtd_total.textContent = sumTotal("quantidade", 0);
+          td_valor_total.textContent = "R$ " + sumTotal("valor-total", 3);
+
+          vazio.className = " py-5 pl-5";
+          td_qtd_total.className = " py-5 pl-5";
+          td_valor_total.className = " py-5 pl-5";
+
+          vazio.id = "total_row_vazio";
+          td_qtd_total.id = "total_row_qtd";
+          td_valor_total.id = "total_row_valor";
+
+          tablebody.appendChild(td_qtd_total);
+          tablebody.appendChild(vazio);
+          tablebody.appendChild(td_valor_total);
+          tablebody.appendChild(tr);
+        }
+
+
+        function addRow() {
+          let tablebody = document.querySelector("#tabela_lista_produtos");
+          let tr = document.createElement("tr");
+          let td_descricao = document.createElement("td");
+          let td_qtd = document.createElement("td");
+          let td_valor = document.createElement("td");
+          let td_id = document.createElement("td");
+          let products = document.getElementById("products-list");
+
+          function set_class() {
+            td_descricao.className = "py-5 pl-5"
+            td_id.className = "py-5 pl-5"
+            td_qtd.className = "quantidade py-5 pl-5"
+            td_valor.className = "valor-total py-5 pl-5"
+          }
+
+          function remove_total_row() {
+            if (TemLinhaTotal) {
+              tablebody.removeChild(document.getElementById("total_row_vazio"));
+              tablebody.removeChild(document.getElementById("total_row_qtd"));
+              tablebody.removeChild(document.getElementById("total_row_valor"));
+            }
+          }
+          function set_text() {
+            td_qtd.textContent = document.getElementById("ip_quantidade").value;
+            td_descricao.textContent = products[products.selectedIndex].innerHTML;
+            td_valor.textContent = "R$ " + Number(products[products.selectedIndex].label) * Number(td_qtd.innerHTML);
+            td_id.textContent = products[products.selectedIndex].id;
+          }
+          function set_child() {
+            tablebody.appendChild(td_qtd);
+            tablebody.appendChild(td_descricao);
+            tablebody.appendChild(td_valor);
+            tablebody.appendChild(td_id);
+            tablebody.appendChild(tr);
+          }
+          remove_total_row();
+          set_class();
+          set_text();
+          set_child();
+          addRowTotal();
+        }
+      </script>
+    </div>
+  </div>
+</div>
