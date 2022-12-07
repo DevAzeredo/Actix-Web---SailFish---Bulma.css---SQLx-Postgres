@@ -16,6 +16,7 @@
       </div>
       <input class="input mt-2 " id="ip_quantidade" name="ip_quantidade" type="number" placeholder="Quantidade">
       <button class="button is-primary mt-2" onclick="addRow()">Adicionar</button>
+      <span id="spans"></span>
       <script>
         TemLinhaTotal = false;
         function sumTotal(className, startAt) {
@@ -29,74 +30,98 @@
           return sum
         }
 
-        function addRowTotal() {
-          let tablebody = document.querySelector("#tabela_lista_produtos");
-          let tr = document.createElement("tr");
-          let vazio = document.createElement("td");
-          let td_qtd_total = document.createElement("td");
-          let td_valor_total = document.createElement("td");
-
-          TemLinhaTotal = true;
-          tr.id = "total_row";
-          vazio.textContent = " ";
-          td_qtd_total.textContent = sumTotal("quantidade", 0);
-          td_valor_total.textContent = "R$ " + sumTotal("valor-total", 3);
-
-          vazio.className = " py-5 pl-5";
-          td_qtd_total.className = " py-5 pl-5";
-          td_valor_total.className = " py-5 pl-5";
-
-          vazio.id = "total_row_vazio";
-          td_qtd_total.id = "total_row_qtd";
-          td_valor_total.id = "total_row_valor";
-
-          tablebody.appendChild(td_qtd_total);
-          tablebody.appendChild(vazio);
-          tablebody.appendChild(td_valor_total);
-          tablebody.appendChild(tr);
-        }
-
-
         function addRow() {
-          let tablebody = document.querySelector("#tabela_lista_produtos");
-          let tr = document.createElement("tr");
-          let td_descricao = document.createElement("td");
-          let td_qtd = document.createElement("td");
-          let td_valor = document.createElement("td");
-          let td_id = document.createElement("td");
-          let products = document.getElementById("products-list");
 
-          function set_class() {
-            td_descricao.className = "py-5 pl-5"
-            td_id.className = "py-5 pl-5"
-            td_qtd.className = "quantidade py-5 pl-5"
-            td_valor.className = "valor-total py-5 pl-5"
+          function adicionar_linha() {
+            let products = document.getElementById("products-list");
+            let tabela = document.querySelector("#tabela_lista_produtos");
+            let numeroLinhas = tabela.rows.length;
+            let linha = tabela.insertRow(numeroLinhas);
+            let td_qtd = linha.insertCell(0);
+            let td_descricao = linha.insertCell(1);
+            let td_valor = linha.insertCell(2);
+            let td_id = linha.insertCell(3);
+            //let celula3 = linha.insertCell(2);
+
+            function set_innerHTML() {
+              td_qtd.innerHTML = document.getElementById("ip_quantidade").value;
+              td_descricao.innerHTML = products[products.selectedIndex].innerHTML;
+              td_valor.innerHTML = "R$ " + Number(products[products.selectedIndex].label) * Number(td_qtd.innerHTML);
+              td_id.innerHTML = products[products.selectedIndex].id;
+            }
+
+            function set_class() {
+              td_descricao.className = "py-5 pl-5"
+              td_id.className = "py-5 pl-5"
+              td_qtd.className = "quantidade py-5 pl-5"
+              td_valor.className = "valor-total py-5 pl-5"
+            }
+
+            set_innerHTML();
+            set_class();
+            // ta pronto sorvetinho
           }
 
-          function remove_total_row() {
-            if (TemLinhaTotal) {
-              tablebody.removeChild(document.getElementById("total_row_vazio"));
-              tablebody.removeChild(document.getElementById("total_row_qtd"));
-              tablebody.removeChild(document.getElementById("total_row_valor"));
+          //celula3.innerHTML = "<button onclick='removeLinha(this)'>Remover</button>";
+          // ta aqui, mas tem que sair ##AVISO
+          function tableToJson(table_name, headers) {
+            var table = document.getElementById(table_name);
+            var data = [];
+            // go through cells
+            for (var i = 0; i < table.rows.length; i++) {
+              var tableRow = table.rows[i];
+              var rowData = {};
+              for (var j = 0; j < tableRow.cells.length; j++) {
+                rowData[headers[j]] = tableRow.cells[j].innerHTML;
+              }
+              data.push(rowData);
+            }
+            return data;
+          }
+
+          function remover_totalizadora() {
+            let remover = document.getElementById("linha_totalizadora");
+            // remover a linha totalizadora se existir
+            if (remover != null) {
+              document.getElementById("linha_totalizadora").remove()
             }
           }
-          function set_text() {
-            td_qtd.textContent = document.getElementById("ip_quantidade").value;
-            td_descricao.textContent = products[products.selectedIndex].innerHTML;
-            td_valor.textContent = "R$ " + Number(products[products.selectedIndex].label) * Number(td_qtd.innerHTML);
-            td_id.textContent = products[products.selectedIndex].id;
+
+          function addRowTotal() {
+            let remover = document.getElementById("linha_totalizadora");
+            let products = document.getElementById("products-list");
+            let tabela = document.querySelector("#tabela_lista_produtos");
+            let numeroLinhas = tabela.rows.length;
+            let linha = tabela.insertRow(numeroLinhas);
+            let td_qtd_total = linha.insertCell(0);
+            let td_descricao = linha.insertCell(1);
+            let td_valor_total = linha.insertCell(2);
+
+
+            function set_class() {
+              td_qtd_total.className = "py-5 pl-5";
+              td_descricao.className = "py-5 pl-5";
+              td_valor_total.className = "py-5 pl-5";
+            }
+
+            function set_id() {
+              linha.id = "linha_totalizadora"
+              td_qtd_total.id = "total_row_qtd";
+              td_descricao.id = "total_row_vazio";
+              td_valor_total.id = "total_row_valor";
+            }
+            function set_innerHTML() {
+              td_qtd_total.innerHTML = sumTotal("quantidade", 0);
+              td_valor_total.innerHTML = "R$ " + sumTotal("valor-total", 3);
+            }
+            set_class();
+            set_id();
+            set_innerHTML();
           }
-          function set_child() {
-            tablebody.appendChild(td_qtd);
-            tablebody.appendChild(td_descricao);
-            tablebody.appendChild(td_valor);
-            tablebody.appendChild(td_id);
-            tablebody.appendChild(tr);
-          }
-          remove_total_row();
-          set_class();
-          set_text();
-          set_child();
+
+          adicionar_linha();
+          remover_totalizadora();
+          console.log((tableToJson("tabela_lista_produtos", ["quantidade", "descricao", "valor"])));
           addRowTotal();
         }
       </script>
