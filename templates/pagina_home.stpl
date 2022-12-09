@@ -10,7 +10,13 @@
     <% include!("autocomplete_produtos.stpl"); %>
         <br>
         <% include!("lista_produtos.stpl"); %>
-            
+            <div class="buttons is-right mr-4">
+                <button class="button is-success is-medium" onclick="enviar_pedido()">Enviar pedido</button>
+            </div>
+
+            <% include!("script_pagina_home.stpl"); %>
+
+
 </body>
 
 </html>

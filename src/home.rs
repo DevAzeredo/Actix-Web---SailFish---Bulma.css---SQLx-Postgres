@@ -19,26 +19,6 @@ pub async fn home(pool: Data<AppState>) -> actix_web::Result<impl Responder> {
     Ok(Html(body))
 }
 
-/*async fn get_id(p_produto: Vec<Pessoas>) -> Home {
-    let mut hom: Home;
-    let mut i = 0;
-    hom = Home {
-        id: Vec::new(),
-        nome: Vec::new(),
-    };
-
-    for pes in p_produto {
-        log::info!("tamanho id:{:?}", hom.id.len());
-
-        hom.id.insert(i, pes.id);
-        log::info!("tamanho nome:{:?}", hom.nome.len());
-        hom.nome.insert(i, pes.name);
-        i = i + 1;
-    }
-    hom
-}*/
-
-//let pas: Vec<Pessoas> = serde_json::from_value(a).unwrap();
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct Product {
     id: i64,

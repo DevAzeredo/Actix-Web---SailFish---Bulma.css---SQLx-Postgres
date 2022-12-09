@@ -1,44 +1,23 @@
+use actix_files::NamedFile;
 use actix_web::{
     middleware::{Compress, Logger},
     web,
     web::Data,
-    App, HttpServer,HttpRequest, Error, get,
+    App, HttpRequest, HttpServer, Result,
 };
-use actix_web::http::header::{ContentDisposition, DispositionType};
-use actix_files as fs;
 use dotenv::dotenv;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use std::path::PathBuf;
 mod home;
+mod pedidos;
 
 pub struct AppState {
     db: Pool<Postgres>,
 }
-async fn get_response(link: String) -> serde_json::Value {
-    // create client
-    let client = awc::Client::default();
 
-    // construct request
-    let req = client.get(link).insert_header(("User-Agent", "awc/3.0"));
-
-    // send request and await response
-    let mut response = req.send().await.unwrap();
-    log::info!("Response: {:?}", response);
-
-    let value = response.json::<serde_json::Value>().await.unwrap();
-
-    value
-}
-/*Com essa função dá pra entregar outros arquivos também, basta alterar o nome de bulma.min pra filename e o :.css pra :.* e em query(bulma.min pra filename) */
-#[get("/{bulma.min:.css}")]
-async fn index(req: HttpRequest) -> Result<fs::NamedFile, Error> {
-    let path: std::path::PathBuf = req.match_info().query("bulma.min").parse().unwrap();
-    let file = fs::NamedFile::open(path)?;
-    Ok(file
-        .use_last_modified(true)
-        .set_content_disposition(ContentDisposition {
-            disposition: DispositionType::Attachment,
-            parameters: vec![],
-        }))
+async fn index(req: HttpRequest) -> Result<NamedFile> {
+    let path: PathBuf = req.match_info().query("filename").parse().unwrap();
+    Ok(NamedFile::open(path)?)
 }
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -60,12 +39,17 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(AppState { db: pool.clone() }))
+            .app_data(web::JsonConfig::default().limit(4096))
             .service(
                 web::resource("/")
                     .app_data(pool.clone())
                     .route(web::get().to(home::home)),
             )
-            .service(index)
+            .service(
+                web::resource("/EnviarPedido")
+                    .route(web::post().to(pedidos::enviar_pedido)),
+            )
+            .route("/{bulma.min:.css}", web::get().to(index))
             .wrap(Compress::default())
             .wrap(Logger::default())
     })

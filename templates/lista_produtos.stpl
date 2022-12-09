@@ -30,13 +30,6 @@
           </tr>
         </thead>
          <tbody id="tabela_lista_produtos">
-         <% for prod in &products { %>
-          <tr>
-            <td class="quantidade py-5 pl-5"> <%= prod.id %></td>
-            <td class="py-5 pl-5"><%= prod.descricao %> </td>
-            <td class="valor-total py-5 pl-5">R$ <%= prod.valor %></td>
-            </tr>
-          <% } %>
         </tbody>
       </table>
     </div>
